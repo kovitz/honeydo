@@ -1,0 +1,16 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/api/todos"
+  to = "/.netlify/functions/api/todos"
+  status = 200
+
+[[redirects]]
+  from = "/api/todos/*"
+  to = "/.netlify/functions/api/todos/:splat"
+  status = 200

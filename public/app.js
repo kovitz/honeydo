@@ -47,8 +47,13 @@ window
 
 async function fetchTodos() {
   const res = await fetch("/api/todos");
+  if (!res.ok) {
+    todos = [];
+    render();
+    return;
+  }
   const data = await res.json();
-  todos = data.items;
+  todos = data.items ?? [];
   render();
 }
 

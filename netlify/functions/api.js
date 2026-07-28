@@ -23,7 +23,7 @@ function parseRoute(pathname) {
 }
 
 exports.handler = async (event) => {
-  await configureBlobs(event);
+  configureBlobs(event);
 
   const route = parseRoute(event.path);
   if (!route) {

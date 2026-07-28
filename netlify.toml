@@ -2,6 +2,9 @@
   publish = "public"
   functions = "netlify/functions"
 
+[functions]
+  external_node_modules = ["@netlify/blobs"]
+
 [build.environment]
   NODE_VERSION = "20"
 

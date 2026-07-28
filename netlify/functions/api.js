@@ -1,4 +1,5 @@
 const {
+  configureBlobs,
   readTodos,
   createTodo,
   updateTodo,
@@ -22,6 +23,8 @@ function parseRoute(pathname) {
 }
 
 exports.handler = async (event) => {
+  await configureBlobs(event);
+
   const route = parseRoute(event.path);
   if (!route) {
     return jsonResponse(404, { error: "Not found" });

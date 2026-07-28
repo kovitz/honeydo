@@ -15,9 +15,36 @@
   --brown-muted: #7a6a58;
   --green: #5a9e6f;
   --green-light: #e8f5ec;
+  --green-border: #c8e6d0;
+  --surface: #ffffff;
   --border: #ead9c4;
+  --placeholder: #b8a894;
+  --delete: #c4b5a5;
+  --delete-hover: #c0392b;
+  --delete-hover-bg: #fdecea;
   --shadow: 0 4px 24px rgba(61, 44, 30, 0.08);
   --radius: 14px;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --honey: #e8a838;
+  --honey-dark: #f0b84a;
+  --honey-light: #3d2e14;
+  --cream: #1a1410;
+  --brown: #f3e8da;
+  --brown-muted: #a89888;
+  --green: #6bb57f;
+  --green-light: #1e2e24;
+  --green-border: #2f4a38;
+  --surface: #2a221c;
+  --border: #3d342c;
+  --placeholder: #7a6a58;
+  --delete: #6a5a4a;
+  --delete-hover: #e87066;
+  --delete-hover-bg: #3a2220;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
 }
 
 body {
@@ -26,6 +53,7 @@ body {
   color: var(--brown);
   min-height: 100dvh;
   line-height: 1.5;
+  transition: background 0.2s, color 0.2s;
 }
 
 .app {
@@ -40,6 +68,44 @@ body {
 .header {
   text-align: center;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--brown-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.theme-toggle:hover {
+  border-color: var(--honey);
+  color: var(--brown);
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  display: none;
+}
+
+[data-theme="light"] .theme-toggle .icon-moon,
+:root:not([data-theme]) .theme-toggle .icon-moon {
+  display: block;
+}
+
+[data-theme="dark"] .theme-toggle .icon-sun {
+  display: block;
 }
 
 .header-icon {
@@ -72,15 +138,15 @@ body {
   padding: 0.85rem 1rem;
   border: 2px solid var(--border);
   border-radius: var(--radius);
-  background: white;
+  background: var(--surface);
   font: inherit;
   font-size: 1rem;
   color: var(--brown);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.2s;
 }
 
 .add-form input::placeholder {
-  color: #b8a894;
+  color: var(--placeholder);
 }
 
 .add-form input:focus {
@@ -123,7 +189,7 @@ body {
   padding: 0.5rem;
   border: 2px solid var(--border);
   border-radius: 999px;
-  background: white;
+  background: var(--surface);
   color: var(--brown-muted);
   font: inherit;
   font-size: 0.85rem;
@@ -156,11 +222,12 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  background: white;
+  background: var(--surface);
   border: 2px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   animation: slideIn 0.2s ease;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 @keyframes slideIn {
@@ -176,7 +243,7 @@ body {
 
 .todo-item.completed {
   background: var(--green-light);
-  border-color: #c8e6d0;
+  border-color: var(--green-border);
 }
 
 .todo-item.completed .todo-text {
@@ -201,7 +268,7 @@ body {
 .todo-delete {
   background: none;
   border: none;
-  color: #c4b5a5;
+  color: var(--delete);
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
@@ -211,8 +278,8 @@ body {
 }
 
 .todo-delete:hover {
-  color: #c0392b;
-  background: #fdecea;
+  color: var(--delete-hover);
+  background: var(--delete-hover-bg);
 }
 
 .empty-state {

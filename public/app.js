@@ -4,9 +4,46 @@ const todoInput = document.getElementById("todo-input");
 const emptyState = document.getElementById("empty-state");
 const taskCount = document.getElementById("task-count");
 const filterBtns = document.querySelectorAll(".filter-btn");
+const themeToggle = document.getElementById("theme-toggle");
 
 let todos = [];
 let filter = "all";
+
+function currentTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark"
+    ? "dark"
+    : "light";
+}
+
+function syncThemeToggle(theme) {
+  themeToggle.setAttribute(
+    "aria-label",
+    theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+  );
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("honeydo-theme", theme);
+  syncThemeToggle(theme);
+}
+
+syncThemeToggle(currentTheme());
+
+themeToggle.addEventListener("click", () => {
+  applyTheme(currentTheme() === "dark" ? "light" : "dark");
+});
+
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", (e) => {
+    if (localStorage.getItem("honeydo-theme")) return;
+    document.documentElement.setAttribute(
+      "data-theme",
+      e.matches ? "dark" : "light"
+    );
+    syncThemeToggle(currentTheme());
+  });
 
 async function fetchTodos() {
   const res = await fetch("/api/todos");

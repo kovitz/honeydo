@@ -68,6 +68,11 @@ body {
   border: 0;
 }
 
+/* Author `display` rules otherwise override the UA [hidden] stylesheet */
+[hidden] {
+  display: none !important;
+}
+
 .login-screen {
   min-height: 100dvh;
   display: flex;

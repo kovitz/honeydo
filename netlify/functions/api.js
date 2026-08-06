@@ -5,6 +5,12 @@ const {
   updateTodo,
   deleteTodo,
 } = require("../../lib/todos");
+const {
+  checkPassword,
+  checkToken,
+  getAuthToken,
+  getTokenFromRequest,
+} = require("../../lib/auth");
 
 function jsonResponse(statusCode, body) {
   return {
@@ -15,11 +21,16 @@ function jsonResponse(statusCode, body) {
 }
 
 function parseRoute(pathname) {
-  const match = pathname.match(
+  const loginMatch = pathname.match(
+    /(?:\/api|\/\.netlify\/functions\/api)\/login\/?$/
+  );
+  if (loginMatch) return { type: "login" };
+
+  const todosMatch = pathname.match(
     /(?:\/api|\/\.netlify\/functions\/api)\/todos(?:\/([^/]+))?\/?$/
   );
-  if (!match) return null;
-  return { id: match[1] || null };
+  if (!todosMatch) return null;
+  return { type: "todos", id: todosMatch[1] || null };
 }
 
 exports.handler = async (event) => {
@@ -41,6 +52,20 @@ exports.handler = async (event) => {
   }
 
   try {
+    if (route.type === "login") {
+      if (method !== "POST") {
+        return jsonResponse(405, { error: "Method not allowed" });
+      }
+      if (!checkPassword(body.password)) {
+        return jsonResponse(401, { error: "Incorrect password" });
+      }
+      return jsonResponse(200, { token: getAuthToken() });
+    }
+
+    if (!checkToken(getTokenFromRequest(event.headers))) {
+      return jsonResponse(401, { error: "Unauthorized" });
+    }
+
     if (method === "GET" && !route.id) {
       return jsonResponse(200, await readTodos());
     }

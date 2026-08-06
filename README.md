@@ -49,11 +49,14 @@ npx netlify deploy --prod
 | Local (`npm start`) | `data/todos.json` |
 | Netlify / `netlify dev` | Netlify Blobs store named `honeydo` |
 
-The API is the same in both environments:
+The API is the same in both environments (all todo routes require login):
 
 | Method | Path | Description |
 |--------|------|-------------|
+| POST | `/api/login` | Unlock with `{ "password": "..." }` → `{ "token": "..." }` |
 | GET | `/api/todos` | List all tasks |
 | POST | `/api/todos` | Add a task `{ "text": "..." }` |
 | PATCH | `/api/todos/:id` | Update `{ "completed": true }` or `{ "text": "..." }` |
 | DELETE | `/api/todos/:id` | Remove a task |
+
+Todo requests need an `Authorization: Bearer <token>` header from a successful login. The site password defaults to the shared couple password; override with a `SITE_PASSWORD` environment variable if you want.

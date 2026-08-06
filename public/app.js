@@ -1,3 +1,11 @@
+const AUTH_KEY = "honeydo-auth";
+
+const loginScreen = document.getElementById("login-screen");
+const loginForm = document.getElementById("login-form");
+const passwordInput = document.getElementById("password-input");
+const loginError = document.getElementById("login-error");
+const app = document.getElementById("app");
+
 const todoList = document.getElementById("todo-list");
 const addForm = document.getElementById("add-form");
 const todoInput = document.getElementById("todo-input");
@@ -8,6 +16,7 @@ const themeToggle = document.getElementById("theme-toggle");
 
 let todos = [];
 let filter = "all";
+let authToken = localStorage.getItem(AUTH_KEY);
 
 function currentTheme() {
   return document.documentElement.getAttribute("data-theme") === "dark"
@@ -45,8 +54,76 @@ window
     syncThemeToggle(currentTheme());
   });
 
+function authHeaders(extra = {}) {
+  return {
+    ...extra,
+    Authorization: `Bearer ${authToken}`,
+  };
+}
+
+function showLogin() {
+  authToken = null;
+  localStorage.removeItem(AUTH_KEY);
+  app.hidden = true;
+  loginScreen.hidden = false;
+  passwordInput.value = "";
+  loginError.hidden = true;
+  passwordInput.focus();
+}
+
+function showApp() {
+  loginScreen.hidden = true;
+  app.hidden = false;
+  fetchTodos();
+}
+
+function showLoginError(message) {
+  loginError.textContent = message;
+  loginError.hidden = false;
+  passwordInput.select();
+}
+
+async function login(password) {
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    let data = {};
+    try {
+      data = await res.json();
+    } catch {
+      /* ignore non-JSON error bodies */
+    }
+    if (!res.ok) {
+      showLoginError(data.error || "Incorrect password");
+      return;
+    }
+    if (!data.token) {
+      showLoginError("Login failed — no token returned");
+      return;
+    }
+    authToken = data.token;
+    localStorage.setItem(AUTH_KEY, authToken);
+    showApp();
+  } catch {
+    showLoginError("Can't reach the server — is it running?");
+  }
+}
+
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  loginError.hidden = true;
+  login(passwordInput.value.trim());
+});
+
 async function fetchTodos() {
-  const res = await fetch("/api/todos");
+  const res = await fetch("/api/todos", { headers: authHeaders() });
+  if (res.status === 401) {
+    showLogin();
+    return;
+  }
   if (!res.ok) {
     todos = [];
     render();
@@ -60,9 +137,13 @@ async function fetchTodos() {
 async function addTodo(text) {
   const res = await fetch("/api/todos", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ text }),
   });
+  if (res.status === 401) {
+    showLogin();
+    return;
+  }
   if (!res.ok) return;
   const item = await res.json();
   todos.unshift(item);
@@ -72,9 +153,13 @@ async function addTodo(text) {
 async function toggleTodo(id, completed) {
   const res = await fetch(`/api/todos/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: authHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify({ completed }),
   });
+  if (res.status === 401) {
+    showLogin();
+    return;
+  }
   if (!res.ok) return;
   const updated = await res.json();
   todos = todos.map((t) => (t.id === id ? updated : t));
@@ -82,7 +167,14 @@ async function toggleTodo(id, completed) {
 }
 
 async function deleteTodo(id) {
-  const res = await fetch(`/api/todos/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/todos/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  if (res.status === 401) {
+    showLogin();
+    return;
+  }
   if (!res.ok) return;
   todos = todos.filter((t) => t.id !== id);
   render();
@@ -147,4 +239,8 @@ filterBtns.forEach((btn) => {
   });
 });
 
-fetchTodos();
+if (authToken) {
+  showApp();
+} else {
+  showLogin();
+}

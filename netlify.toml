@@ -9,6 +9,11 @@
   NODE_VERSION = "20"
 
 [[redirects]]
+  from = "/api/login"
+  to = "/.netlify/functions/api/login"
+  status = 200
+
+[[redirects]]
   from = "/api/todos"
   to = "/.netlify/functions/api/todos"
   status = 200

@@ -25,7 +25,27 @@
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <div class="app">
+    <div class="login-screen" id="login-screen" hidden>
+      <form class="login-card" id="login-form" method="post" action="#">
+        <div class="header-icon" aria-hidden="true">🍯</div>
+        <h1>The Honeydo List</h1>
+        <p class="subtitle">Enter the password to continue</p>
+        <label class="sr-only" for="password-input">Password</label>
+        <input
+          type="password"
+          id="password-input"
+          name="password"
+          placeholder="Password"
+          autocomplete="current-password"
+          spellcheck="false"
+          required
+        />
+        <button type="submit" class="btn btn-primary">Unlock</button>
+        <p class="login-error" id="login-error" hidden></p>
+      </form>
+    </div>
+
+    <div class="app" id="app" hidden>
       <header class="header">
         <button
           type="button"
